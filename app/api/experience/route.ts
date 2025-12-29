@@ -4,7 +4,6 @@
 
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongoose";
-import { z } from "zod";
 import { Experience } from "@/models/Experience";
 
 /**

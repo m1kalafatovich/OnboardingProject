@@ -22,13 +22,27 @@ globalForMongoose.mongoose = cached;
 
 export async function connectToDatabase() {
     if (cached.conn) {
+        console.log("Using cached connection");
         return cached.conn;
     }
 
     if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI, {
-            bufferCommands: false,
-        });
+        console.log("Creating new connection");
+        cached.promise = mongoose
+            .connect(MONGODB_URI, {
+                bufferCommands: false,
+            })
+            .then((mongooseInstance) => {
+                console.log("Connection established");
+                return mongooseInstance;
+            })
+            .catch((error) => {
+                console.error("Connection error");
+                console.error(error);
+                cached.promise = null;
+                throw error;
+            })
+        
     }
 
     cached.conn = await cached.promise;

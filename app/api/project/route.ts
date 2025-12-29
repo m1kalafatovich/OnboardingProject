@@ -3,7 +3,6 @@
 'use server'
 
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { connectToDatabase } from "@/lib/mongoose";
 import { Project } from "@/models/Project";
 
@@ -13,10 +12,16 @@ import { Project } from "@/models/Project";
  * @param request request object
  * @return response with all projects
  */
-export async function GET(request: Request) {
-    await connectToDatabase();
-    const products = await Project.find().lean();
-    return NextResponse.json(products, { status: 200 });
+export async function GET() {
+    try {
+        await connectToDatabase();
+        const projects = await Project.find();
+        return NextResponse.json(projects, { status: 200 });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
+
 }
 
 /**
@@ -25,14 +30,13 @@ export async function GET(request: Request) {
  * @return response after creating new project
  */
 export async function POST(request: Request) {
-    const newProject = z.object({
-        projectName: z.string().min(1),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date().optional(),
-        description: z.string().optional(),
-        deploymentLink: z.string().url().optional(),
-        githubLink: z.string().url().optional(),
-    }).parse(await request.json());
-    const createdProject = await Project.create(newProject);
-    return NextResponse.json(createdProject, { status: 201 });
+    try {
+        await connectToDatabase();
+        const newProjectBody = await request.json();
+        const createdProject = await Project.create(newProjectBody);
+        return NextResponse.json(createdProject, { status: 201 });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
 }
