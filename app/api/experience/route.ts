@@ -12,10 +12,15 @@ import { Experience } from "@/models/Experience";
  * @param request request object
  * @return response with experience data
  */
-export async function GET(request: Request) {
-    await connectToDatabase();
-    const experiences = await Experience.find().lean();
-    return NextResponse.json(experiences, { status: 200 });
+export async function GET() {
+    try {
+        await connectToDatabase();
+        const experiences = await Experience.find();
+        return NextResponse.json(experiences, { status: 200 });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
 }
 
 /**
@@ -24,13 +29,13 @@ export async function GET(request: Request) {
  * @return response after creating new experience entry
  */
 export async function POST(request: Request) {
-    const newExperience = z.object({
-        title: z.string().min(1),
-        company: z.string().min(1),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date().optional(),
-        description: z.string().optional(),
-    }).parse(await request.json());
-    const createdExperience = await Experience.create(newExperience);
-    return NextResponse.json(createdExperience, { status: 201 });
+    try {
+        await connectToDatabase();
+        const newExperienceBody = await request.json();
+        const createdExperience = await Experience.create(newExperienceBody);
+        return NextResponse.json(createdExperience, { status: 201 });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    }
 }
