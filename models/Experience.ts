@@ -10,4 +10,4 @@ const ExperienceSchema = new mongoose.Schema({
     description: String
 });
 
-export const Experience = mongoose.model('Experience', ExperienceSchema);
+export const Experience = mongoose.models.Experience || mongoose.model('Experience', ExperienceSchema);
