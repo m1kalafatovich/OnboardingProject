@@ -10,4 +10,4 @@ const ProjectSchema = new mongoose.Schema({
     githubLink: String
 });
 
-export const Project = mongoose.model('Project', ProjectSchema);
+export const Project = mongoose.models.Project || mongoose.model('Project', ProjectSchema);
